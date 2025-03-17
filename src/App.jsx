@@ -72,7 +72,7 @@ function App() {
 
       {/* Main content area */}
       <div className="whole-page">
-        <h1>My Crypto List</h1>
+        <h1>James Levi Z23677798 Crypto List</h1>
         <div className="search-container">
           <input
             type="text"
