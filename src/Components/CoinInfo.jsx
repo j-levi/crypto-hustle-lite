@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 const API_KEY = import.meta.env.VITE_APP_API_KEY;
 
 const CoinInfo = ({ image, name, symbol }) => {
@@ -8,7 +9,8 @@ const CoinInfo = ({ image, name, symbol }) => {
     const getCoinPrice = async () => {
       try {
         const response = await fetch(
-          `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=USD&api_key=` + API_KEY
+          `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=USD&api_key=` +
+            API_KEY
         );
         const json = await response.json();
         setPrice(json);
@@ -16,13 +18,13 @@ const CoinInfo = ({ image, name, symbol }) => {
         console.error("Error fetching price:", error);
       }
     };
-    getCoinPrice().catch(console.error);
+    getCoinPrice();
   }, [symbol]);
 
   if (!price) return null;
 
   return (
-    <li className="main-list" key={symbol}>
+    <li className="main-list">
       <img
         className="icons"
         src={`https://www.cryptocompare.com${image}`}

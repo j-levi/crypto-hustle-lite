@@ -7,7 +7,13 @@ const CryptoScam = () => {
   useEffect(() => {
     const getScams = async () => {
       try {
-        const response = await fetch("https://api.cryptoscamdb.org/v1/featured");
+        const response = await fetch("https://api.cryptoscamdb.org/v1/featured", {
+          method: "GET",
+          redirect: "follow",
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const json = await response.json();
         setScamList(json);
       } catch (error) {
@@ -15,9 +21,10 @@ const CryptoScam = () => {
         console.error("Scam fetch error:", error);
       }
     };
-    getScams().catch(console.error);
+    getScams();
   }, []);
 
+  // If there's a fetch error or environment block
   if (scamError) {
     return (
       <div>
@@ -27,6 +34,7 @@ const CryptoScam = () => {
     );
   }
 
+  // If still loading
   if (!scamList) {
     return (
       <div>
@@ -36,6 +44,7 @@ const CryptoScam = () => {
     );
   }
 
+  // If data is empty
   if (!scamList.result || scamList.result.length === 0) {
     return (
       <div>
@@ -45,6 +54,7 @@ const CryptoScam = () => {
     );
   }
 
+  // Otherwise, display the scam list
   return (
     <div>
       <h2>Recent Crypto Scams</h2>

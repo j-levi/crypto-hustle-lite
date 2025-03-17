@@ -13,7 +13,7 @@ body {
 /* Sidebar styling */
 .sidenav {
   height: 100%;
-  width: 250px; /* Fixed width */
+  width: 250px; /* fixed width */
   position: fixed;
   top: 0;
   left: 0;
@@ -32,7 +32,7 @@ body {
   text-align: center;
   background: black;
   color: white;
-  margin-left: 250px; /* Leave room for the sidebar */
+  margin-left: 250px; /* leaves room for the sidebar */
   width: calc(100% - 250px);
 }
 
@@ -63,16 +63,11 @@ li.main-list {
   margin-left: 75px;
 }
 
-/* Styling for the search input */
-input[type="text"] {
-  padding: 10px;
-  font-size: 16px;
+/* Search container */
+.search-container {
+  display: inline-flex;
+  gap: 10px;
   margin-bottom: 20px;
-  border: none;
-  border-radius: 4px;
 }
 
-/* Styling for search status messages */
-.search-status {
-  margin-bottom: 20px;
-}
+/* Styling for the search i

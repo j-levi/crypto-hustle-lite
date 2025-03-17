@@ -6,13 +6,15 @@ import "./App.css";
 const API_KEY = import.meta.env.VITE_APP_API_KEY;
 
 function App() {
-  const [list, setList] = useState(null);
-  const [filteredResults, setFilteredResults] = useState([]);
-  const [searchInput, setSearchInput] = useState("");
+  const [list, setList] = useState(null);           // Full coin list from API
+  const [filteredResults, setFilteredResults] = useState([]); 
+  const [searchInput, setSearchInput] = useState(""); 
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false); 
+  // ↑ Tracks whether the user has clicked the search button at least once
 
-  // Fetch list of coins on component mount
+  // 1) Fetch the entire coin list once on mount
   useEffect(() => {
     const fetchAllCoinData = async () => {
       try {
@@ -28,79 +30,83 @@ function App() {
     fetchAllCoinData();
   }, []);
 
-  // Search function to filter coins by symbol or full name
-  const searchItems = (searchValue) => {
-    setSearchInput(searchValue);
+  // 2) Handle the search when the user clicks the "Search" button
+  const handleSearch = () => {
     setSearchError(null);
     setSearchLoading(true);
+    setHasSearched(true); // We know the user has tried to search now
 
-    if (searchValue !== "" && list) {
-      // Simulate a short delay to display a loading state
-      setTimeout(() => {
-        try {
-          const filteredData = Object.keys(list.Data).filter((coinKey) =>
-            list.Data[coinKey].Symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
-            list.Data[coinKey].FullName.toLowerCase().includes(searchValue.toLowerCase())
-          );
-          setFilteredResults(filteredData);
-        } catch (error) {
-          setSearchError("Error filtering results.");
-          console.error("Search error:", error);
-        }
-        setSearchLoading(false);
-      }, 500);
-    } else if (list) {
-      setFilteredResults(Object.keys(list.Data));
+    if (!list || !list.Data) {
+      setSearchError("No coin data loaded yet.");
       setSearchLoading(false);
+      return;
     }
+
+    // If user didn't type anything, clear results
+    if (searchInput.trim() === "") {
+      setFilteredResults([]);
+      setSearchLoading(false);
+      return;
+    }
+
+    // Otherwise, filter the list
+    try {
+      const lowerSearch = searchInput.toLowerCase();
+      const filteredData = Object.keys(list.Data).filter((coinKey) => {
+        const symbolMatch = list.Data[coinKey].Symbol.toLowerCase().includes(lowerSearch);
+        const nameMatch = list.Data[coinKey].FullName.toLowerCase().includes(lowerSearch);
+        return symbolMatch || nameMatch;
+      });
+      setFilteredResults(filteredData);
+    } catch (error) {
+      setSearchError("Error filtering results.");
+      console.error("Search error:", error);
+    }
+    setSearchLoading(false);
   };
 
   return (
     <div className="app-container">
+      {/* Side navigation for scam info */}
       <SideNav />
+
+      {/* Main content area */}
       <div className="whole-page">
         <h1>My Crypto List</h1>
-        <input
-          type="text"
-          placeholder="Search..."
-          onChange={(e) => searchItems(e.target.value)}
-        />
-        {searchInput && (
-          <div className="search-status">
-            {searchLoading && <p>Loading search results...</p>}
-            {searchError && <p>{searchError}</p>}
-            {!searchLoading && !searchError && (
-              <p>
-                {filteredResults.length > 0
-                  ? `Found ${filteredResults.length} result(s).`
-                  : "No results found."}
-              </p>
-            )}
-          </div>
-        )}
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Enter symbol or name"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <button onClick={handleSearch}>Search</button>
+        </div>
+
+        {/* Show search status messages */}
+        <div className="search-status">
+          {searchLoading && <p>Loading search results...</p>}
+          {searchError && <p>{searchError}</p>}
+          {hasSearched && !searchLoading && !searchError && (
+            <p>
+              {filteredResults.length > 0
+                ? `Found ${filteredResults.length} result(s).`
+                : "No results found."}
+            </p>
+          )}
+        </div>
+
         <ul>
-          {list &&
-            (searchInput.length > 0
-              ? filteredResults.map((coin) =>
-                  list.Data[coin].PlatformType === "blockchain" ? (
-                    <CoinInfo
-                      key={list.Data[coin].Symbol}
-                      image={list.Data[coin].ImageUrl}
-                      name={list.Data[coin].FullName}
-                      symbol={list.Data[coin].Symbol}
-                    />
-                  ) : null
-                )
-              : Object.keys(list.Data).map((coin) =>
-                  list.Data[coin].PlatformType === "blockchain" ? (
-                    <CoinInfo
-                      key={list.Data[coin].Symbol}
-                      image={list.Data[coin].ImageUrl}
-                      name={list.Data[coin].FullName}
-                      symbol={list.Data[coin].Symbol}
-                    />
-                  ) : null
-                ))}
+          {/* Only render coin list if user has clicked search */}
+          {hasSearched &&
+            filteredResults.map((coinKey) => (
+              <CoinInfo
+                key={list.Data[coinKey].Symbol}
+                image={list.Data[coinKey].ImageUrl}
+                name={list.Data[coinKey].FullName}
+                symbol={list.Data[coinKey].Symbol}
+              />
+            ))}
         </ul>
       </div>
     </div>
