@@ -2,65 +2,25 @@ import React, { useEffect, useState } from "react";
 
 const CryptoScam = () => {
   const [scamList, setScamList] = useState(null);
-  const [scamError, setScamError] = useState(null);
 
   useEffect(() => {
     const getScams = async () => {
-      try {
-        const response = await fetch("https://api.cryptoscamdb.org/v1/featured", {
-          method: "GET",
-          redirect: "follow",
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const json = await response.json();
-        setScamList(json);
-      } catch (error) {
-        setScamError("Error fetching scam data.");
-        console.error("Scam fetch error:", error);
-      }
+      var requestOptions = {
+        method: "GET",
+        redirect: "follow",
+      };
+      const response = await fetch("https://api.cryptoscamdb.org/v1/featured", requestOptions);
+      const json = await response.json();
+      setScamList(json);
     };
-    getScams();
+    getScams().catch(console.error);
   }, []);
 
-  // If there's a fetch error or environment block
-  if (scamError) {
-    return (
-      <div>
-        <h2>Recent Crypto Scams</h2>
-        <p>{scamError}</p>
-      </div>
-    );
-  }
-
-  // If still loading
-  if (!scamList) {
-    return (
-      <div>
-        <h2>Recent Crypto Scams</h2>
-        <p>Loading scam data...</p>
-      </div>
-    );
-  }
-
-  // If data is empty
-  if (!scamList.result || scamList.result.length === 0) {
-    return (
-      <div>
-        <h2>Recent Crypto Scams</h2>
-        <p>No scam data available.</p>
-      </div>
-    );
-  }
-
-  // Otherwise, display the scam list
   return (
     <div>
-      <h2>Recent Crypto Scams</h2>
-      <p>Coins/platforms involved in recent crypto-related scams:</p>
+      Here is a list of coins and platforms involved in recent crypto-related scams:
       <ul className="side-list">
-        {scamList.result.map((scam) => (
+        {scamList && scamList.result && scamList.result.map((scam) => (
           <li key={scam.name}>{scam.name}</li>
         ))}
       </ul>
