@@ -13,7 +13,7 @@ const CoinInfo = ({ image, name, symbol }) => {
         const json = await response.json();
         setPrice(json);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching price:", error);
       }
     };
     getCoinPrice().catch(console.error);

@@ -3,7 +3,7 @@ import CryptoScam from "./CryptoScam";
 
 const SideNav = () => (
   <div className="sidenav">
-    <h1>here is my side nav bar</h1>
+    <h1>Side Navigation</h1>
     <CryptoScam />
   </div>
 );

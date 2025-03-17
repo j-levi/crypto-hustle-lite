@@ -9,6 +9,8 @@ function App() {
   const [list, setList] = useState(null);
   const [filteredResults, setFilteredResults] = useState([]);
   const [searchInput, setSearchInput] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
 
   // Fetch list of coins on component mount
   useEffect(() => {
@@ -20,7 +22,7 @@ function App() {
         const json = await response.json();
         setList(json);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching coin data:", error);
       }
     };
     fetchAllCoinData();
@@ -29,14 +31,27 @@ function App() {
   // Search function to filter coins by symbol or full name
   const searchItems = (searchValue) => {
     setSearchInput(searchValue);
+    setSearchError(null);
+    setSearchLoading(true);
+
     if (searchValue !== "" && list) {
-      const filteredData = Object.keys(list.Data).filter((coinKey) =>
-        list.Data[coinKey].Symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
-        list.Data[coinKey].FullName.toLowerCase().includes(searchValue.toLowerCase())
-      );
-      setFilteredResults(filteredData);
+      // Simulate a short delay to display a loading state
+      setTimeout(() => {
+        try {
+          const filteredData = Object.keys(list.Data).filter((coinKey) =>
+            list.Data[coinKey].Symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
+            list.Data[coinKey].FullName.toLowerCase().includes(searchValue.toLowerCase())
+          );
+          setFilteredResults(filteredData);
+        } catch (error) {
+          setSearchError("Error filtering results.");
+          console.error("Search error:", error);
+        }
+        setSearchLoading(false);
+      }, 500);
     } else if (list) {
       setFilteredResults(Object.keys(list.Data));
+      setSearchLoading(false);
     }
   };
 
@@ -50,6 +65,19 @@ function App() {
           placeholder="Search..."
           onChange={(e) => searchItems(e.target.value)}
         />
+        {searchInput && (
+          <div className="search-status">
+            {searchLoading && <p>Loading search results...</p>}
+            {searchError && <p>{searchError}</p>}
+            {!searchLoading && !searchError && (
+              <p>
+                {filteredResults.length > 0
+                  ? `Found ${filteredResults.length} result(s).`
+                  : "No results found."}
+              </p>
+            )}
+          </div>
+        )}
         <ul>
           {list &&
             (searchInput.length > 0
